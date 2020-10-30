@@ -69,7 +69,7 @@ void sendFuelLevelData() {
 
 void sendSpeedData() {
   Wire.beginTransmission(SLAVE_ADDR);
-  Wire.write(RPM_ID);
+  Wire.write(SPEED_ID);
   Wire.write(speed);
   Wire.endTransmission();
   
