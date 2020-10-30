@@ -2,7 +2,7 @@
 
 #define SLAVE_ADDR 0x16
 
-#define SPEED_ID 0x01
+#define SPEED_ID 0x04
 #define RPM_ID 0x02
 #define FUEL_LEVEL_ID 0x03
 
@@ -12,7 +12,7 @@ void sendRPMData();
 void sendFuelLevelData();
 void sendSpeedData();
 
-uint8_t speed = 30;
+uint8_t speed = 15;
 uint16_t rpm = 0;
 float fuel_level = 100.0;
 
@@ -32,12 +32,12 @@ void loop()
 {
   sendRPMData();
   sendFuelLevelData();
-
-  if (speed_counter >= SPEED_COUNTER_MAX) {
-    sendSpeedData();
-    speed_counter = 0;
-  } else 
-    speed_counter++;
+  sendSpeedData();
+//  if (speed_counter >= SPEED_COUNTER_MAX) {
+//    sendSpeedData();
+//    speed_counter = 0;
+//  } else 
+//    speed_counter++;
 
   delay(10);
 }
@@ -73,8 +73,9 @@ void sendSpeedData() {
   Wire.write(speed);
   Wire.endTransmission();
   
-  if (random(0, 10) > 4)
-    speed++;
-  else
-    speed++;
+    if (speed > 30) {
+      speed = 0;
+    } else {
+      speed++;
+    }
 }
