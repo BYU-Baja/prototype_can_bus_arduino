@@ -13,19 +13,21 @@ void sendFuelLevelData();
 void sendSpeedData();
 
 uint8_t speed = 15;
-uint16_t rpm = 0;
+uint16_t rpm = 1000;
 float fuel_level = 100.0;
 
 uint32_t speed_counter = 0;
 
-union float_byte_array {
+typedef union
+{
   float f;
   uint8_t array[4];
-};
+} FLOATUNION_t;
 
 void setup()
 {
   Wire.begin();
+  Serial.begin(9600);
 }
 
 void loop()
@@ -39,7 +41,7 @@ void loop()
 //  } else 
 //    speed_counter++;
 
-  delay(10);
+  delay(100);
 }
 
 void sendRPMData() {
@@ -48,12 +50,18 @@ void sendRPMData() {
   Wire.write(rpm & 0xFF);
   Wire.write(rpm >> 8);
   Wire.endTransmission();
+  Serial.print("RPM:");
+  Serial.println(rpm);
 
-  rpm++; // We can just roll over rpm
+  if (rpm > 9000) {
+    rpm = 1000;
+  } else {
+    rpm++; // We can just roll over rpm
+  }
 }
 
 void sendFuelLevelData() {
-  float_byte_array converter;
+  FLOATUNION_t converter;
   converter.f = fuel_level;
   
   Wire.beginTransmission(SLAVE_ADDR);
@@ -63,8 +71,18 @@ void sendFuelLevelData() {
   Wire.write(converter.array[2] >> 16);
   Wire.write(converter.array[3] >> 24);
   Wire.endTransmission();
+  Serial.print("FUEL:");
+  Serial.println(converter.array[0]);
+  Serial.println(converter.array[1]);
+  Serial.println(converter.array[2]);
+  Serial.println(converter.array[3]);
+  
 
-  fuel_level -= 0.1; // We can just roll over rpm
+  if (fuel_level > 0) {
+    fuel_level = fuel_level - 0.1; 
+  } else {
+    fuel_level = 100.0;
+  }
 }
 
 void sendSpeedData() {
@@ -72,6 +90,8 @@ void sendSpeedData() {
   Wire.write(SPEED_ID);
   Wire.write(speed);
   Wire.endTransmission();
+  Serial.print("Speed:");
+  Serial.println(speed);
   
     if (speed > 30) {
       speed = 0;
